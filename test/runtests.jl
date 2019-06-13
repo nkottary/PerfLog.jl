@@ -1,14 +1,14 @@
-using TimerOutputs
+using PerfLog
 using Test
 
-import TimerOutputs: DEFAULT_TIMER, ncalls, flatten,
-                     prettytime, prettymemory, prettypercent, prettycount
+import PerfLog: DEFAULT_TIMER, ncalls, flatten,
+                prettytime, prettymemory, prettypercent, prettycount
 
 reset_timer!()
 
 # Timing from modules that don't import much
 baremodule NoImports
-    using TimerOutputs
+    using PerfLog
     using Base: sleep
     @timeit "baresleep" sleep(0.1)
 end
@@ -279,10 +279,10 @@ function debug_test()
     @timeit_debug to_debug "sleep" sleep(0.001)
 end
 
-TimerOutputs.disable_debug_timings(Main)
+PerfLog.disable_debug_timings(Main)
 debug_test()
 @test !("sleep" in keys(to_debug.inner_timers))
-TimerOutputs.enable_debug_timings(Main)
+PerfLog.enable_debug_timings(Main)
 debug_test()
 @test "sleep" in keys(to_debug.inner_timers)
 
@@ -295,11 +295,11 @@ to_debug = TimerOutput()
     return x + y * x
 end
 
-TimerOutputs.disable_debug_timings(Main)
+PerfLog.disable_debug_timings(Main)
 baz(1, 2.0)
 @test isempty(to_debug.inner_timers)
 
-TimerOutputs.enable_debug_timings(Main)
+PerfLog.enable_debug_timings(Main)
 baz(1, 2.0)
 @test "baz" in keys(to_debug.inner_timers)
 @test "sleep" in keys(to_debug.inner_timers["baz"].inner_timers)

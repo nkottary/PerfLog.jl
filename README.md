@@ -1,8 +1,8 @@
-# TimerOutputs
+# PerfLog
 
-[![Build Status](https://travis-ci.org/KristofferC/TimerOutputs.jl.svg?branch=master)](https://travis-ci.org/KristofferC/TimerOutputs.jl) [![codecov](https://codecov.io/gh/KristofferC/TimerOutputs.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/KristofferC/TimerOutputs.jl)
+[![Build Status](https://travis-ci.org/KristofferC/PerfLog.jl.svg?branch=master)](https://travis-ci.org/KristofferC/PerfLog.jl) [![codecov](https://codecov.io/gh/KristofferC/PerfLog.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/KristofferC/PerfLog.jl)
 
-`TimerOutputs` is a small Julia package that is used to generate formatted output from timings made in different sections of a program.
+`PerfLog` is a small Julia package that is used to generate formatted output from timings made in different sections of a program.
 It's main functionality is the `@timeit` macro, similar to the `@time` macro in Base except one also assigns a label to the code section being timed.
 Multiple calls to code sections with the same label (and in the same "scope") will accumulate the data for that label.
 After the program has executed, it is possible to print a nicely formatted table presenting how much time, allocations and number of calls were made in each section.
@@ -42,7 +42,7 @@ percentage of the total in that section and the average (time / allocations per 
 The easiest way to show how the package work is with a few examples of timing sections.
 
 ```julia
-using TimerOutputs
+using PerfLog
 
 # Create a TimerOutput, this is the main type that keeps track of everything.
 const to = TimerOutput()
@@ -167,10 +167,10 @@ julia> show(to, allocations = false, compact = true)
  ────────────────────────────────────
 ```
 
-It is possible to flatten this timer using the `TimerOutputs.flatten` function that accumulates the data for all sections with identical labels:
+It is possible to flatten this timer using the `PerfLog.flatten` function that accumulates the data for all sections with identical labels:
 
 ```julia
-julia> to_flatten = TimerOutputs.flatten(to);
+julia> to_flatten = PerfLog.flatten(to);
 
 julia> show(to_flatten; compact = true, allocations = false)
  ──────────────────────────────────
@@ -238,23 +238,23 @@ The returned time has units in nano seconds and allocations in bytes.
 For example (using the `to` object from above):
 
 ```julia
-julia> TimerOutputs.ncalls(to["nest 1"])
+julia> PerfLog.ncalls(to["nest 1"])
 1
 
-julia> TimerOutputs.time(to["nest 1"]["nest 2"])
+julia> PerfLog.time(to["nest 1"]["nest 2"])
 350441733
 
-julia> TimerOutputs.allocated(to["nest 1"]["nest 2"])
+julia> PerfLog.allocated(to["nest 1"]["nest 2"])
 5280
 ```
 
 Furthermore, you can request the total time spent in the "root" timer:
 
 ```julia
-julia> TimerOutputs.tottime(to)
+julia> PerfLog.tottime(to)
 604937208
 
-julia> TimerOutputs.totallocated(to)
+julia> PerfLog.totallocated(to)
 7632
 ```
 
@@ -289,7 +289,7 @@ julia> print_timer()
  ───────────────────────────────────────────────────────────────────
 ```
 
-The default timer object can be retrieved with `TimerOutputs.get_defaulttimer()`.
+The default timer object can be retrieved with `PerfLog.get_defaulttimer()`.
 
 
 ## Overhead
@@ -301,7 +301,7 @@ It is sometimes desireable to be able "turn on and off" the `@timeit` macro, for
 To enable this, we provide the `@timeit_debug` macro, which wraps the `@timeit` macro with a conditional, checking if debug timings have been enabled.
 Because you may wish to turn on only certain portions of your instrumented code base (or multiple codebases may have instrumented their code), debug timings are enabled on a module-by-module basis.
 By default, debug timings are disabled, and this conditional should be optimized away, allowing for truly zero-overhead.
-If a user calls `TimerOutputs.enable_debug_timings(<module>)`, the `<module>.timeit_debug_enabled()` method will be redefined, causing all dependent methods to be recompiled within that module.
+If a user calls `PerfLog.enable_debug_timings(<module>)`, the `<module>.timeit_debug_enabled()` method will be redefined, causing all dependent methods to be recompiled within that module.
 This may take a while, and hence is intended only for debugging usage, however all calls to `@timeit_debug` (within that Module) will thereafter be enabled.
 
 ## Author
